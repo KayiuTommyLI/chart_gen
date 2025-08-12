@@ -2,7 +2,7 @@
 
 A Python application for generating beautiful radar charts from CSV data, where each student is represented by a different colored line and each subject forms an angle on the radar chart.
 
-![Radar Chart Example](https://via.placeholder.com/400x300?text=Radar+Chart+Example)
+![Radar Chart Example](radar_chart.png)
 
 ## Features
 
