@@ -43,10 +43,105 @@ class RadarChartGenerator:
         
         return pd.DataFrame(data, index=students, columns=subjects)
     
+    def generate_individual_chart(self, student_name, save_path=None, show=True, figsize=(8, 8)):
+        """
+        Generate a radar chart for a single student.
+        
+        Args:
+            student_name (str): Name of the student
+            save_path (str): Path to save the chart (optional)
+            show (bool): Whether to display the chart
+            figsize (tuple): Figure size (width, height)
+        """
+        if student_name not in self.students:
+            raise ValueError(f"Student '{student_name}' not found in data")
+        
+        # Number of variables (subjects)
+        num_vars = len(self.subjects)
+        
+        # Calculate angles for each subject
+        angles = [n / float(num_vars) * 2 * pi for n in range(num_vars)]
+        angles += angles[:1]  # Complete the circle
+        
+        # Create the plot
+        fig, ax = plt.subplots(figsize=figsize, subplot_kw=dict(projection='polar'))
+        
+        # Get student data
+        values = self.data.loc[student_name].tolist()
+        values += values[:1]  # Complete the circle
+        
+        # Plot the data
+        ax.plot(angles, values, 'o-', linewidth=3, color='#1f77b4')
+        ax.fill(angles, values, alpha=0.3, color='#1f77b4')
+        
+        # Customize the chart
+        ax.set_xticks(angles[:-1])
+        ax.set_xticklabels(self.subjects, fontsize=12)
+        ax.set_ylim(0, 100)
+        
+        # Add grid lines
+        ax.set_yticks([20, 40, 60, 80, 100])
+        ax.set_yticklabels(['20', '40', '60', '80', '100'], fontsize=10)
+        ax.grid(True, alpha=0.7)
+        
+        # Add title
+        plt.title(f"{student_name}'s Performance Radar Chart", 
+                 size=16, fontweight='bold', pad=20)
+        
+        # Adjust layout
+        plt.tight_layout()
+        
+        # Save if path provided
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            print(f"Chart for {student_name} saved to: {save_path}")
+        
+        # Display if requested
+        if show:
+            plt.show()
+        
+        return fig, ax
+    
+    def generate_all_individual_charts(self, output_dir="charts", show=False):
+        """
+        Generate separate radar charts for all students.
+        
+        Args:
+            output_dir (str): Directory to save the charts
+            show (bool): Whether to display each chart
+        """
+        # Create output directory if it doesn't exist
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+            print(f"Created directory: {output_dir}")
+        
+        charts_generated = []
+        
+        for student in self.students:
+            # Create filename from student name (remove spaces and special chars)
+            safe_name = "".join(c for c in student if c.isalnum() or c in (' ', '-', '_')).rstrip()
+            safe_name = safe_name.replace(' ', '_')
+            filename = f"{safe_name}_radar_chart.png"
+            filepath = os.path.join(output_dir, filename)
+            
+            # Generate chart for this student
+            self.generate_individual_chart(
+                student_name=student,
+                save_path=filepath,
+                show=show
+            )
+            charts_generated.append(filepath)
+        
+        print(f"\nGenerated {len(charts_generated)} individual charts:")
+        for chart in charts_generated:
+            print(f"  - {chart}")
+        
+        return charts_generated
+    
     def generate_chart(self, title="Student Performance Radar Chart", 
                       save_path=None, show=True, figsize=(10, 8)):
         """
-        Generate and display/save the radar chart.
+        Generate and display/save the combined radar chart with all students.
         
         Args:
             title (str): Chart title
@@ -96,7 +191,7 @@ class RadarChartGenerator:
         # Save if path provided
         if save_path:
             plt.savefig(save_path, dpi=300, bbox_inches='tight')
-            print(f"Chart saved to: {save_path}")
+            print(f"Combined chart saved to: {save_path}")
         
         # Display if requested
         if show:
@@ -134,12 +229,21 @@ def main():
     # Print data summary
     generator.print_data_summary()
     
-    # Generate and display the chart
-    print("\nGenerating radar chart...")
+    # Generate individual charts for each student
+    print("\nGenerating individual radar charts for each student...")
+    generator.generate_all_individual_charts(output_dir="charts", show=False)
+    
+    # Also generate a combined chart for comparison
+    print("\nGenerating combined radar chart...")
     generator.generate_chart(
-        title="Student Performance Radar Chart",
-        save_path="radar_chart.png"
+        title="Student Performance Radar Chart (Combined)",
+        save_path="radar_chart_combined.png",
+        show=False
     )
+    
+    print("\nAll charts generated successfully!")
+    print("- Individual charts are in the 'charts' directory")
+    print("- Combined chart is saved as 'radar_chart_combined.png'")
 
 
 if __name__ == "__main__":

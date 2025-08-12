@@ -145,9 +145,10 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific files
-# Generated chart images (keep sample outputs but ignore test outputs)
+# Generated chart images
 *.png
-!radar_chart.png  # Keep the main output file
+!radar_chart_combined.png  # Keep the combined chart
+charts/  # Ignore individual chart directory
 test_*.png
 output_*.png
 
