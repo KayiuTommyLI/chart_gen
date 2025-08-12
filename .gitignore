@@ -146,11 +146,11 @@ Thumbs.db
 
 # Project specific files
 # Generated chart images
-*.png
-!radar_chart_combined.png  # Keep the combined chart
-charts/  # Ignore individual chart directory
-test_*.png
-output_*.png
+# *.png
+# !radar_chart_combined.png  # Keep the combined chart
+# charts/  # Ignore individual chart directory
+# test_*.png
+# output_*.png
 
 # Data files (uncomment if you want to ignore user data files)
 # *.csv
